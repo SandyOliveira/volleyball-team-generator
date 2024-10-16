@@ -1,0 +1,29 @@
+    if (matchCount === 0) {
+      // 3° jogo: Vencedor da 1ª partida vs Vencedor da 2ª partida
+      if (winners.length === 2) {
+        nextMatchTeams = `${winners[winners.length - 2]} vs ${
+          winners[winners.length - 1]
+        }`;
+      }
+    } else if (matchCount === 1) {
+      // 4° jogo: Perdedor da 1ª partida vs Perdedor da 2ª partida
+      if (losers.length >= 2) {
+        nextMatchTeams = `${losers[losers.length - 2]} vs ${
+          losers[losers.length - 1]
+        }`;
+      }
+    } else if (matchCount === 2) {
+      // fim do 2° jogo: Vencedor da 3ª partida vs Perdedor da 2ª partida
+      if (winners.length >= 2 && losers.length >= 2) {
+        nextMatchTeams = `${winners[winners.length - 1]} vs ${
+          losers[losers.length - 1]
+        }`;
+      }
+    } else if (matchCount === 3) {
+      // 6° jogo: Perdedor da 3ª partida vs Perdedor da 4ª partida
+      if (losers.length >= 3) {
+        nextMatchTeams = `${losers[losers.length - 2]} vs ${
+          losers[losers.length - 1]
+        }`;
+      }
+    } else 
