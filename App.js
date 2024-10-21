@@ -82,24 +82,26 @@ const App = () => {
     }
   }, [matchCount, winners, losers]);
 
+
   const prepareNextMatch = () => {
     let nextMatchTeams = '';
 
     if (teams.length === 3) {
       // Lógica para 3 times
       if (matchCount === 1) {
-        // 1° jogo: Time 1 vs Time 2
         nextMatchTeams = `${teams[0]} vs ${teams[1]}`;
       } else if (matchCount === 2) {
-        // 2° jogo: Time 2 vs Time 3
         nextMatchTeams = `${teams[1]} vs ${teams[2]}`;
       } else if (matchCount === 3) {
-        // 3° jogo: Time 1 vs Time 3
         nextMatchTeams = `${teams[0]} vs ${teams[2]}`;
       }
     } else if (teams.length === 4) {
       // Lógica para 4 times
-      if (matchCount === 2) {
+      if (matchCount === 0) {
+        nextMatchTeams = `${teams[0]} vs ${teams[1]}`; // Primeira partida
+      } else if (matchCount === 1) {
+        nextMatchTeams = `${teams[2]} vs ${teams[3]}`; // Segunda partida
+      } else if (matchCount === 2) {
         // 3° jogo: Vencedor da 1ª partida vs Vencedor da 2ª partida
         if (winners.length >= 2) {
           nextMatchTeams = `${winners[0]} vs ${winners[1]}`;
@@ -112,31 +114,55 @@ const App = () => {
       } else if (matchCount === 4) {
         // 5° jogo: Vencedor da 3ª partida vs Perdedor da 2ª partida
         if (winners.length >= 3 && losers.length >= 2) {
-          nextMatchTeams = `${winners[2]} vs ${losers[1]}`;
+          nextMatchTeams = `${winners[2]} vs ${losers[1]}`; // Vencedor da 3ª vs Perdedor da 2ª
         }
+      } else if (matchCount === 5) {
+        // 6° jogo: Perdedor da 3ª partida vs Perdedor da 1ª partida
+        if (losers.length >= 3) {
+          nextMatchTeams = `${losers[2]} vs ${losers[0]}`; // Perdedor da 3ª vs Perdedor da 1ª
+        }
+      } else if (matchCount >= 6) {
+        // Evitar repetição de partidas recentes
+        const lastTwoMatches = matchesHistory.slice(-2); // Últimas duas partidas
+        const lastMatchTeams = matchesHistory[matchesHistory.length - 1]?.teams;
 
-      } else {
-        // Reinicia o torneio quando todas as partidas forem jogadas
-        alert(
-          'Atenção, todas as partidas foram concluídas! Você pode reiniciar.'
-        );
-        resetTournament();
-        return;
+        // Possíveis combinações com times ainda não repetidos recentemente
+        const possibleMatches = [
+          `${losers[2]} vs ${winners[2]}`,
+          `${losers[1]} vs ${winners[1]}`,
+          `${winners[0]} vs ${losers[0]}`
+        ];
+
+        // Filtrar possíveis partidas que não sejam repetidas das últimas duas
+        const validMatches = possibleMatches.filter((match) => {
+          const [team1, team2] = match.split(' vs ');
+          return !lastTwoMatches.some(
+            (pastMatch) =>
+              pastMatch.teams.includes(team1) && pastMatch.teams.includes(team2)
+          );
+        });
+
+        if (validMatches.length > 0) {
+          nextMatchTeams = validMatches[0]; // Escolhe a primeira combinação válida
+        } else {
+          alert('Não há combinações disponíveis sem repetição imediata. Aguarde um momento para reiniciar o torneio.');
+        }
       }
     } else {
       // Reinicia o torneio quando todas as partidas forem jogadas
-      alert(
-        'Atenção, todas as partidas foram concluídas! Você pode reiniciar.'
-      );
+      alert('Atenção, todas as partidas foram concluídas! Você pode reiniciar.');
       resetTournament();
       return;
-
     }
 
     if (nextMatchTeams) {
       setNextMatch(nextMatchTeams);
     }
   };
+
+
+
+
 
   const resetTournament = () => {
     setWinners([]);
@@ -156,7 +182,7 @@ const App = () => {
       (points2 >= 15 && points2 - points1 >= 2)
     ) {
       const winner = points1 > points2 ? currentMatch[0] : currentMatch[1];
-      alert("A partida acabou!")
+      alert("A partida acabou")
       setTimeout(() => {
         onMatchEnd(winner);
       }, 1000);
